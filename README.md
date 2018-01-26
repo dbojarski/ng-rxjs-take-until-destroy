@@ -1,5 +1,8 @@
+<b>TakeUntilDestroy</b> is a decorator for Angular that handles unsubscriptions on component destroy. If you have subscriptions that exist
+till the component destroy, just define a function that returns an observable and use this decorator. No triggers, no subscriptions, no 'ngOnDestroy' with just unsubscription purpose.
+
 # ng-rxjs-take-until-destroy
-An decorator that automatically unsubscribes decorated methods on Angular component's 'ngOnDestroy' call.
+An decorator that automatically unsubscribes observables returned by decorated methods on Angular component's 'ngOnDestroy' call.
 
 # Installation
 `npm i ng-rxjs-take-until-destroy`
