@@ -1,0 +1,27 @@
+{
+  "name": "ng-rxjs-take-until-destroy",
+  "version": "1.0.0",
+  "description": "A decorator that automatically unsubscribes decorated methods on component's 'ngOnDestroy' method's call.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -r ts-node/register src/**/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "x"
+  },
+  "author": "Daniel Bojarski (ELZOY)",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^2.2.47",
+    "chai": "^4.1.2",
+    "chai-spies": "^1.0.0",
+    "mocha": "^5.0.0",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "rxjs": "^5.5.6"
+  }
+}
