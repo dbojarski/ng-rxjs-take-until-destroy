@@ -2,7 +2,7 @@
 till the component destroy, just define a function that returns an observable and use this decorator. No triggers, no subscriptions, no 'ngOnDestroy' with just unsubscription purpose.
 
 # ng-rxjs-take-until-destroy
-An decorator that automatically unsubscribes observables returned by decorated methods on Angular component's 'ngOnDestroy' call.
+A decorator that automatically unsubscribes observables returned by decorated methods on Angular component's 'ngOnDestroy' call.
 
 # Installation
 `npm i ng-rxjs-take-until-destroy`
