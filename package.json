@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "x"
+    "url": "https://github.com/dbojarski/ng-rxjs-take-until-destroy"
   },
   "author": "Daniel Bojarski (ELZOY)",
   "license": "ISC",
