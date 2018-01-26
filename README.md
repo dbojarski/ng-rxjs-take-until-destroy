@@ -1,5 +1,5 @@
 # ng-rxjs-take-until-destroy
-A decorator that automatically unsubscribes decorated methods on component's 'ngOnDestroy' method's call.
+A decorator that automatically unsubscribes decorated methods on component's 'ngOnDestroy' call.
 
 # Usage
 ```
