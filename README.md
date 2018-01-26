@@ -2,7 +2,7 @@
 A decorator that automatically unsubscribes decorated methods on component's 'ngOnDestroy' call.
 
 # Usage
-```
+```javascript
 class SomeClass implements OnInit {
   constructor(private serviceA: ServiceA,
               private serviceB: ServiceB) {
@@ -34,7 +34,7 @@ The decorator...
 
 in fact the above component without 'TakeUntilDestroy' decorator would be looking like
 
-```
+```javascript
 class SomeClass implements OnInit, OnDestroy {
   private trigger: Subject<any> = new Subject();
   
