@@ -19,13 +19,19 @@ class SomeClass {
     return 5;
   }
 
-  mockFunction() {
+  @TakeUntilDestroy
+  testArgAndContext(...args: any[]) {
+    this.mockFunction.apply(this, args);
+    return Observable.of(null);
+  }
+
+  mockFunction(...args: any[]) {
   }
 }
 
 class ExtendedClass extends SomeClass {
-  ngOnDestroy() {
-    this.mockFunction();
+  ngOnDestroy(...args:any[]) {
+    this.mockFunction(...args);
   }
 }
 
@@ -87,5 +93,43 @@ describe('TakeUntilDestroy', () => {
 
     expect(component.tud_onDestroyTrigger).to.be.an('undefined');
     expect(console.warn).to.have.been.called();
+  });
+
+  it('should call the decorated function retaining original this and arguments', () => {
+    const component = new SomeClass();
+
+    // we need to spy on other function, because it's not possible to spy on a getter directly
+    spy.on(component, 'mockFunction');
+    component.testArgAndContext('arg');
+
+    expect(component.mockFunction).to.have.been.called.with('arg');
+    // @todo is there a way to test this value using those Chai spies? Jasmine has it...
+  });
+
+  it('should preserve arguments and context passed to ngOnDestroy', () => {
+    const component = new ExtendedClass();
+
+    spy.on(component, 'mockFunction');
+    component.getObservable();
+    component.ngOnDestroy('arg');
+
+    expect(component.mockFunction).to.have.been.called.with('arg');
+  });
+
+  it('should not call the decorated function before it\'s explicitely called', () => {
+    const spy = chai.spy(() => {});
+
+    class Klass {
+      @TakeUntilDestroy
+      fn() {
+        spy();
+        return Observable.of(null);
+      }
+    }
+
+    const instance = new Klass();
+
+    instance.fn();
+    expect(spy).to.have.been.called.once;
   });
 });
