@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/takeUntil';
 
 /**
  * A decorator that automatically unsubscribe decorated method on 'ngOnDestroy' function's call.
@@ -15,7 +16,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    * able only to redefine 'ngOnDestroy', not to declare it.
    */
   if(!target.hasOwnProperty('ngOnDestroy')) {
-    Object.assign(target, {ngOnDestroy: null});
+    target['ngOnDestroy'] = null;
   }
 
   /**
@@ -25,9 +26,15 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    * @returns {Function} a function with observable 'takeUntil' method
    */
   function getter(): Function {
-    const returnValue: any = descriptor.value.apply(this);
+    return (...args) => {
+      const value: any = descriptor.value.apply(this, args);
 
-    if(returnValue instanceof Observable) {
+      if (!(value instanceof Observable)) {
+        console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
+
+        return value;
+      }
+
       /**
        * Sets ngOnDestroy and adds a subject to the component. This subject will be treated as a trigger that ends subscription.
        * 'this' is being extended from the place the getter has been called.
@@ -38,11 +45,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
         setNgOnDestroy.apply(this);
       }
 
-      return () => descriptor.value.apply(this).takeUntil(this.tud_onDestroyTrigger);
-    } else {
-      console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
-
-      return () => returnValue;
+      return value.takeUntil(this.tud_onDestroyTrigger);
     }
   }
 
@@ -53,12 +56,12 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
   function setNgOnDestroy() {
     const ngOnDestroy: Function = this.ngOnDestroy;
 
-    this.ngOnDestroy = function() {
+    this.ngOnDestroy = function (...args) {
       this.tud_onDestroyTrigger.next();
       this.tud_onDestroyTrigger.complete();
 
       if(ngOnDestroy) {
-        ngOnDestroy.apply(this);
+        ngOnDestroy.apply(this, args);
       }
     };
   }
