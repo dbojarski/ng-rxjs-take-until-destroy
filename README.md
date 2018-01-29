@@ -20,12 +20,12 @@ class SomeClass implements OnInit {
   }
   
   @TakeUntilDestroy
-  getStreamA(): Observable<StreamAType> {
+  private getStreamA(): Observable<StreamAType> {
     return this.serviceA.getStreamA();
   }
   
   @TakeUntilDestroy
-  getStreamB(): Observable<StreamBType> {
+  private getStreamB(): Observable<StreamBType> {
     return this.serviceB.getStreamB();
   }
 }
