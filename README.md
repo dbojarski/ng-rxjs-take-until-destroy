@@ -64,3 +64,25 @@ class SomeClass implements OnInit, OnDestroy {
   }
 }
 ```
+# Important
+Using Angular CLI with AOT compilation, the ngOnDestroy method has to be implemented directly to component (even if it means to make an empty method). Otherwise ```TakeUntilDestroy``` decorator won't be able to create it and modify itself.
+
+```javascript
+class SomeClass implements OnInit {
+  constructor(private serviceA: ServiceA,
+              private serviceB: ServiceB) {
+  }
+  
+  ngOnInit() {
+    this.getStreamA().subscribe();
+    this.getStreamB().subscribe();
+  }
+  
+  ngOnDestroy() {}
+  
+  @TakeUntilDestroy
+  private getStreamA(): Observable<StreamAType> {
+    return this.serviceA.getStreamA();
+  }
+}
+```
