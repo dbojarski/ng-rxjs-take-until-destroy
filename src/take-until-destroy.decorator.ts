@@ -16,7 +16,8 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    * able only to redefine 'ngOnDestroy', not to declare it.
    */
   if(!target.hasOwnProperty('ngOnDestroy')) {
-    target['ngOnDestroy'] = null;
+    target['ngOnDestroy'] = () => {
+    };
   }
 
   /**
@@ -29,7 +30,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
     return (...args) => {
       const value: any = descriptor.value.apply(this, args);
 
-      if (!(value instanceof Observable)) {
+      if(!(value instanceof Observable)) {
         console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
 
         return value;
@@ -56,7 +57,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
   function setNgOnDestroy() {
     const ngOnDestroy: Function = this.ngOnDestroy;
 
-    this.ngOnDestroy = function (...args) {
+    this.ngOnDestroy = function(...args) {
       this.tud_onDestroyTrigger.next();
       this.tud_onDestroyTrigger.complete();
 
