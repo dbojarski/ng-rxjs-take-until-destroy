@@ -1,6 +1,5 @@
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/takeUntil';
+import { isObservable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 /**
  * A decorator that automatically unsubscribe decorated method on 'ngOnDestroy' function's call.
@@ -28,9 +27,9 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    */
   function getter(): Function {
     return (...args) => {
-      const value: any = descriptor.value.apply(this, args);
+      let value: any = descriptor.value.apply(this, args);
 
-      if(!(value instanceof Observable)) {
+      if(!(isObservable(value))) {
         console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
 
         return value;
@@ -46,7 +45,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
         setNgOnDestroy.apply(this);
       }
 
-      return value.takeUntil(this.tud_onDestroyTrigger);
+      return value.pipe(takeUntil(this.tud_onDestroyTrigger));
     }
   }
 
