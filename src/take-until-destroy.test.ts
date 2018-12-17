@@ -1,9 +1,7 @@
 import * as chai from 'chai';
 import * as spies from 'chai-spies';
-import { Observable } from 'rxjs';
-import { of } from 'rxjs/internal/observable/of';
-
 import { TakeUntilDestroy } from './take-until-destroy.decorator';
+import { Observable } from 'rxjs/Rx';
 
 chai.use(spies);
 
@@ -13,7 +11,7 @@ const spy = chai.spy;
 class SomeClass {
   @TakeUntilDestroy
   getObservable() {
-    return of(5);
+    return Observable.of(5);
   }
 
   @TakeUntilDestroy
@@ -24,7 +22,7 @@ class SomeClass {
   @TakeUntilDestroy
   testArgAndContext(...args: any[]) {
     this.mockFunction.apply(this, args);
-    return of(null);
+    return Observable.of(null);
   }
 
   mockFunction(...args: any[]) {
@@ -125,7 +123,7 @@ describe('TakeUntilDestroy', () => {
       @TakeUntilDestroy
       fn() {
         spy();
-        return of(null);
+        return Observable.of(null);
       }
     }
 

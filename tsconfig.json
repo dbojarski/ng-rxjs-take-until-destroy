@@ -3,7 +3,6 @@
     "outDir": "dist/",
     "module": "commonjs",
     "target": "es5",
-    "lib": ["es5", "es2015", "dom", "scripthost"],
     "sourceMap": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
