@@ -27,7 +27,7 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    */
   function getter(): Function {
     return (...args) => {
-      let value: any = descriptor.value.apply(this, args);
+      const value: any = descriptor.value.apply(this, args);
 
       if(!(isObservable(value))) {
         console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
