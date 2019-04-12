@@ -1,7 +1,6 @@
 import * as chai from 'chai';
 import * as spies from 'chai-spies';
-import { Observable } from 'rxjs';
-import { of } from 'rxjs/internal/observable/of';
+import { Observable, of } from 'rxjs';
 
 import { TakeUntilDestroy } from './take-until-destroy.decorator';
 
@@ -44,12 +43,6 @@ describe('TakeUntilDestroy', () => {
     component.getObservable();
 
     expect(component.tud_onDestroyTrigger instanceof Observable).to.be.true;
-  });
-
-  it(`before decorated function call, should set 'ngOnDestroy' on null if component doesn't have it`, () => {
-    const component = new SomeClass();
-
-    expect(component.ngOnDestroy).to.be.null;
   });
 
   it(`after decorated function call, should add 'ngOnDestroy' if doesn't exist`, () => {
