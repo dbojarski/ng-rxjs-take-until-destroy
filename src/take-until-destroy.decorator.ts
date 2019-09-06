@@ -1,4 +1,4 @@
-import { isObservable, Subject } from 'rxjs';
+import { isObservable, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 /**
@@ -8,7 +8,11 @@ import { takeUntil } from 'rxjs/operators';
  * @param {PropertyDescriptor} descriptor a function descriptor that contains access and data attributes
  * @returns {PropertyDescriptor} modified descriptor
  */
-export function TakeUntilDestroy(target: Object, _key: string, descriptor: PropertyDescriptor): PropertyDescriptor {
+export function TakeUntilDestroy(target: Object, _key: string): void;
+export function TakeUntilDestroy(target: Object, _key: string, descriptor: PropertyDescriptor): PropertyDescriptor;
+export function TakeUntilDestroy(target: Object, _key: string, descriptor?: PropertyDescriptor): PropertyDescriptor {
+  let decoratedValue: Observable<any>;
+
   /**
    * Because 'setNgOnDestroy' function is being called inside returned getter, in case the component
    * doesn't have 'ngOnDestroy' function, the 'ngOnDestroy' must be declared here. Returned getter makes us
@@ -25,9 +29,42 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
    * original function and consoles a warning.
    * @returns {Function} a function with observable 'takeUntil' method
    */
-  function getter(): Function {
+  function getGetterForProperty(): Observable<any> {
+    if(!(isObservable(decoratedValue))) {
+      console.warn(`TakeUntilDestroy decorator has been used on a property which return value isn't instance of Observable.`);
+
+      return decoratedValue;
+    }
+
+    setTriggers.apply(this);
+
+    return decoratedValue.pipe(takeUntil(this.tud_onDestroyTrigger));
+  }
+
+  /**
+   * Sets ngOnDestroy and adds a subject to the component. This subject will be treated as a trigger that ends subscription.
+   * 'this' is being extended from the place the getter has been called.
+   * @type {Subject<any>}
+   */
+  function setTriggers() {
+    if(!this.tud_onDestroyTrigger) {
+      Object.defineProperty(this, 'tud_onDestroyTrigger', {
+        enumerable: false,
+        value: new Subject()
+      });
+      setNgOnDestroy.apply(this);
+    }
+  }
+
+  /**
+   * Sets or extends ngOnDestroy function and conditionally adds a trigger.
+   * In case the decorator has been used on a function which return value isn't observable, returns
+   * original function and consoles a warning.
+   * @returns {Function} a function with observable 'takeUntil' method
+   */
+  function getGetterForFunction(): Function {
     return (...args) => {
-      const value: any = descriptor.value.apply(this, args);
+      const value: Observable<any> = descriptor.value.apply(this, args);
 
       if(!(isObservable(value))) {
         console.warn(`TakeUntilDestroy decorator has been used on a function which return value isn't instance of Observable.`);
@@ -40,15 +77,11 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
        * 'this' is being extended from the place the getter has been called.
        * @type {Subject<any>}
        */
-      if(!this.tud_onDestroyTrigger) {
-        setTrigger.apply(this);
-        setNgOnDestroy.apply(this);
-      }
+      setTriggers.apply(this);
 
       return value.pipe(takeUntil(this.tud_onDestroyTrigger));
     }
   }
-
   /**
    * In case the ngOnDestroy isn't declared in component, sets it to null.
    * This way it is possible do declare it in getter;
@@ -66,19 +99,18 @@ export function TakeUntilDestroy(target: Object, _key: string, descriptor: Prope
     };
   }
 
-  /**
-   * Sets trigger and makes it private.
-   */
-  function setTrigger() {
-    Object.defineProperty(this, 'tud_onDestroyTrigger', {
-      enumerable: false,
-      value: new Subject()
+  if(!descriptor) {
+    Object.defineProperty(target, _key, {
+      set: (value: any) => decoratedValue = value,
+      get: getGetterForProperty,
+      configurable: true,
+      enumerable: true
     });
+  } else {
+    return {
+      configurable: true,
+      enumerable: true,
+      get: getGetterForFunction
+    };
   }
-
-  return {
-    configurable: true,
-    enumerable: true,
-    get: getter
-  };
 }

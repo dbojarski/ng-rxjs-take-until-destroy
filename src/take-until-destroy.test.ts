@@ -10,6 +10,9 @@ const expect = chai.expect;
 const spy = chai.spy;
 
 class SomeClass {
+  @TakeUntilDestroy propertyAsObservable = of(5);
+  @TakeUntilDestroy number: 5;
+
   @TakeUntilDestroy
   getObservable() {
     return of(5);
@@ -37,12 +40,20 @@ class ExtendedClass extends SomeClass {
 }
 
 describe('TakeUntilDestroy', () => {
-  it(`should add 'tud_onDestroyTrigger' to the class`, () => {
+  it(`should add 'tud_onDestroyTrigger' to the class with decorated method`, () => {
     const component = new SomeClass();
 
     component.getObservable();
 
-    expect(component.tud_onDestroyTrigger instanceof Observable).to.be.true;
+    expect(component['tud_onDestroyTrigger'] instanceof Observable).to.be.true;
+  });
+
+  it(`should add 'tud_onDestroyTrigger' to the class with decorated property`, () => {
+    const component = new SomeClass();
+
+    component.propertyAsObservable; // triggering getter
+
+    expect(component['tud_onDestroyTrigger'] instanceof Observable).to.be.true;
   });
 
   it(`after decorated function call, should add 'ngOnDestroy' if doesn't exist`, () => {
@@ -50,7 +61,7 @@ describe('TakeUntilDestroy', () => {
 
     component.getObservable();
 
-    expect(component.ngOnDestroy).not.to.be.null;
+    expect(component['ngOnDestroy']).not.to.be.null;
   });
 
   it(`should extend 'ngOnDestroy' if it's already defined in the component`, () => {
@@ -69,25 +80,36 @@ describe('TakeUntilDestroy', () => {
     component.getObservable();
 
     spy.on(component, 'mockFunction');
-    spy.on(component.tud_onDestroyTrigger, 'next');
-    spy.on(component.tud_onDestroyTrigger, 'complete');
+    spy.on(component['tud_onDestroyTrigger'], 'next');
+    spy.on(component['tud_onDestroyTrigger'], 'complete');
 
     component.ngOnDestroy();
 
     expect(component.mockFunction).to.have.been.called();
-    expect(component.tud_onDestroyTrigger.next).to.have.been.called();
-    expect(component.tud_onDestroyTrigger.complete).to.have.been.called();
+    expect(component['tud_onDestroyTrigger'].next).to.have.been.called();
+    expect(component['tud_onDestroyTrigger'].complete).to.have.been.called();
+
+    component.propertyAsObservable;
+
+    expect(component.mockFunction).to.have.been.called();
+    expect(component['tud_onDestroyTrigger'].next).to.have.been.called();
+    expect(component['tud_onDestroyTrigger'].complete).to.have.been.called();
   });
 
-  it(`should return unchanged function and display a warning if this function doesn't return an observable`, () => {
+  it(`should return unchanged value and display a warning if this value is not type of observable`, () => {
     const component = new SomeClass();
 
     spy.on(console, 'warn', () => null);  // a warning visible in browser's console
 
     component.getNumber();
 
-    expect(component.tud_onDestroyTrigger).to.be.an('undefined');
-    expect(console.warn).to.have.been.called();
+    expect(component['tud_onDestroyTrigger']).to.be.an('undefined');
+    expect(console.warn).to.have.been.called()
+
+    component.number;
+
+    expect(component['tud_onDestroyTrigger']).to.be.an('undefined');
+    expect(console.warn).to.have.been.called()
   });
 
   it('should call the decorated function retaining original this and arguments', () => {
