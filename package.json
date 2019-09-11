@@ -1,7 +1,7 @@
 {
   "name": "ng-rxjs-take-until-destroy",
-  "version": "2.0.2",
-  "description": "A decorator that automatically unsubscribes decorated methods on component's 'ngOnDestroy' method's call.",
+  "version": "3.0.0",
+  "description": "A decorator that automatically unsubscribes decorated values on component's 'ngOnDestroy' method's call.",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha -r ts-node/register src/**/*.test.ts"
